@@ -15,19 +15,6 @@ def hello_world():
     return "<p>Hello, World!</p>"
 
 
-@app.route("/api/embedding", methods=['POST'])
-def embedding_api():
-    if request.method == 'POST':
-        # 接收数据
-        data = request.get_json(force=True, silent=True)  # 强制解析为JSON格式, 如果没有则返回None
-        if data is None:
-            return jsonify({"error": "No data provided"}), 400
-        # 处理接收到的数据
-        # 这里可以调用其他函数进行处理
-        # 返回结果
-        return {"message": "Received data", "data": data}
-
-
 @app.route("/api/v1/batch", methods=['POST'])
 def add_directory():
     """
@@ -52,13 +39,19 @@ def add_directory():
             "data": "error",
             "error": "Need 'dir' in request parameter"
         }), 400
-    dir = data['dir']
+    directory = data['dir']
     section = data.get("section", None)
     try:
-        core.add_directory_to_faiss(dir, section)  # 将目录加入faiss中
+        core.add_directory_to_faiss(directory, section)  # 将目录加入faiss中
     except Exception as e:
-        return jsonify({"err": e}), 200
-    return jsonify({"info": f"All json files in {dir} is processed success"}), 200
+        return jsonify({
+            "data": "error",
+            "error": str(e)
+        }), 200
+    return jsonify({
+        "info": "All json files in {} is processed success".format(directory),
+        "error": ""
+    }), 200
 
 
 @app.route("/api/v1/add", methods=['POST'])
@@ -86,8 +79,14 @@ def add_file():
         try:
             core.add_file_to_faiss(file, section_name)
         except Exception as e:
-            return jsonify({"err": e}), 200
-        return jsonify({"info": f"File {file} is processed success"}), 200
+            return jsonify({
+                "data": "error",
+                "error": str(e)
+            }), 200
+        return jsonify({
+            "data": "File {} is processed success".format(file),
+            "error": ""
+        }), 200
 
 
 @app.route("/api/v1/query", methods=['POST'])
@@ -119,9 +118,11 @@ def query():
             k = 20 if "k" not in data else data['k']
             ids = core.query_text(text, k, section_name)
         except Exception as e:
-            return jsonify({"err": e}), 200
-        print(len(ids.tolist()))
-        print(ids.tolist())
+            return jsonify({
+                "data": "error",
+                "error": str(e)
+            }), 200
+        print(text, "查询结果为:", ids.tolist())
         return jsonify({
             "data":{
                 "ids": ids.tolist()
@@ -156,6 +157,6 @@ def delete_section():
         "error": ""
     }), 200
 
-app.run(debug=True)
+app.run(debug=False)
 # CORS(app, supports_credentials=True)  # 支持所有的跨域请求
 CORS(app, origins=['http://localhost:1212', 'http://127.0.0.1:1212'])  # 支持指定的跨域请求

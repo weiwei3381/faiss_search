@@ -8,4 +8,5 @@ CONFIG = {
     "index_file": "index.db",     # 索引文件
     "cache_file": "keys.cache",   # 缓存文件
     "embedding_model": "shaw/dmeta-embedding-zh",    # 嵌入模型名称
+    "chat_model": ""
 }

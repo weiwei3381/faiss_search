@@ -5,6 +5,9 @@
 # @Describe: 模拟数据库
 
 import os, sys
+
+import utils.file
+
 if __name__ == "__main__":
     sys.path.append(os.path.dirname(os.path.abspath('.'))) # 将运行时目录加入路径
 
@@ -45,7 +48,7 @@ if __name__ == "__main__":
         if not os.path.isfile(abs_file):
             continue
         # 过滤不是json的文件
-        if text_utils.get_extname_from_file(abs_file) != ".json":
+        if utils.file.get_extname_from_file(abs_file) != ".json":
             continue
         print(f"正在将{abs_file}加入数据库")
         add_json_to_mysql(abs_file)

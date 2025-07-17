@@ -6,6 +6,9 @@
 
 import os, sys
 
+import utils.embed
+import utils.file
+
 if __name__ == "__main__":
     sys.path.append(os.path.dirname(os.path.abspath('.')))  # 将运行时目录加入路径
 
@@ -93,7 +96,7 @@ def add_file_to_faiss(file_path: str, section: str = default_section):
             if current_handled_cache.get(content) or not isinstance(id, int):
                 # todo 有优化空间，看能否通过id来去重
                 continue
-            embed_vec = text_utils.convert_embedding(content)  # 获得词向量
+            embed_vec = utils.embed.convert_embedding(content)  # 获得词向量
             cache_content_list.append(content)  # 加入缓存
             embedding_list.append({
                 "id": id,
@@ -146,7 +149,7 @@ def add_directory_to_faiss(directory: str, section: str = default_section):
         if not os.path.isfile(abs_json_file):
             continue
         # 过滤不是json的文件
-        if text_utils.get_extname_from_file(abs_json_file) != ".json":
+        if utils.file.get_extname_from_file(abs_json_file) != ".json":
             continue
         json_file_list.append(abs_json_file)
     for i in range(len(json_file_list)):
@@ -165,7 +168,7 @@ def query_text(text: str, k: int = 10, section: str = default_section):
     """
     if section is not None and section != current_section:
         create_or_change_section(section)
-    query_embedding = text_utils.convert_embedding(text)  # 转换text为词向量
+    query_embedding = utils.embed.convert_embedding(text)  # 转换text为词向量
     distances, indices = current_index.search(query_embedding, k=k)
     return indices[0]
 
